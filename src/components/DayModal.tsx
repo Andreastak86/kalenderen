@@ -5,7 +5,11 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getEventsByDate, addEvent } from "@/components/helpers/events";
+import {
+    getEventsByDate,
+    addEvent,
+    deleteEvent,
+} from "@/components/helpers/events";
 
 interface DayModalProps {
     date: Date | null;
@@ -19,7 +23,6 @@ export default function DayModal({ date, onClose }: DayModalProps) {
 
     const isoDate = date?.toISOString().split("T")[0] ?? "";
 
-    // Hent hendelser når modalen åpnes
     useEffect(() => {
         if (!isoDate) return;
         getEventsByDate(isoDate).then((data) => {
@@ -37,6 +40,12 @@ export default function DayModal({ date, onClose }: DayModalProps) {
             setNewEvent("");
         }
         setIsSubmitting(false);
+    }
+    async function handleDelete(id: string) {
+        const success = await deleteEvent(id);
+        if (success) {
+            setEvents((prev) => prev.filter((e) => e.id !== id));
+        }
     }
 
     if (!date) return null;
@@ -58,7 +67,6 @@ export default function DayModal({ date, onClose }: DayModalProps) {
                     </div>
 
                     <div className='space-y-4'>
-                        {/* 🗓 Eksisterende hendelser */}
                         <div>
                             {events.length === 0 ? (
                                 <p className='text-sm text-gray-500'>
@@ -69,16 +77,24 @@ export default function DayModal({ date, onClose }: DayModalProps) {
                                     {events.map((e) => (
                                         <li
                                             key={e.id}
-                                            className='p-2 bg-gray-100 rounded'
+                                            className='p-2 bg-gray-100 rounded flex justify-between items-center'
                                         >
-                                            {e.title}
+                                            <span>{e.title}</span>
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(e.id)
+                                                }
+                                                className='text-red-500 hover:text-red-700 text-xs'
+                                                title='Slett'
+                                            >
+                                                🗑️
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
                             )}
                         </div>
 
-                        {/* ➕ Ny hendelse */}
                         <div className='flex gap-2'>
                             <input
                                 type='text'

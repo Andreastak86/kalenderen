@@ -46,3 +46,14 @@ export async function getEventDatesForYear(year: number): Promise<Set<string>> {
     const isoDates = data?.map((e) => e.date) ?? [];
     return new Set(isoDates);
 }
+
+export async function deleteEvent(id: string) {
+    const { error } = await supabase.from("events").delete().eq("id", id);
+
+    if (error) {
+        console.error("Feil ved sletting:", error);
+        return false;
+    }
+
+    return true;
+}
