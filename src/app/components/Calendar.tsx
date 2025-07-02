@@ -160,10 +160,10 @@ export default function Calendar() {
                                 date={selectedDate}
                                 onClose={() => setSelectedDate(null)}
                             />
-                            ;
                         </div>
                     );
                 })}
+                ;
             </div>
         </div>
     );
