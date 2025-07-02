@@ -15,6 +15,7 @@ import { nb } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import * as React from "react";
 import { getNorwegianHolidays } from "./helpers/getNorwegianHolidays";
+import DayModal from "./DayModal";
 
 const months = [
     "Januar",
@@ -36,6 +37,7 @@ const weekdays = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 export default function Calendar() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     const handlePrevYear = () => setYear((prev) => prev - 1);
     const handleNextYear = () => setYear((prev) => prev + 1);
@@ -117,17 +119,33 @@ export default function Calendar() {
                                             return (
                                                 <div
                                                     key={idx}
+                                                    onClick={() =>
+                                                        setSelectedDate(date)
+                                                    }
                                                     title={holidayName ?? ""}
-                                                    className={`text-center p-1 border transition
-                            ${isCurrentMonth ? "" : "text-gray-400"}
-                            ${isToday ? "bg-blue-200 font-bold" : ""}
-                            ${
-                                holidayName
-                                    ? "bg-red-100 text-red-700 font-semibold"
-                                    : ""
-                            }
-                            ${isSunday ? " bg-red-200" : ""}
-                          `}
+                                                    className={`cursor-pointer text-center p-1 border transition
+                                                  hover:bg-blue-50 dark:hover:bg-neutral-800
+                                                  ${
+                                                      isCurrentMonth
+                                                          ? ""
+                                                          : "text-gray-400"
+                                                  }
+                                                  ${
+                                                      isToday
+                                                          ? "bg-blue-200 font-bold"
+                                                          : ""
+                                                  }
+                                                  ${
+                                                      holidayName
+                                                          ? "bg-red-100 text-red-700 font-semibold"
+                                                          : ""
+                                                  }
+                                                  ${
+                                                      isSunday && !holidayName
+                                                          ? "text-red-500"
+                                                          : ""
+                                                  }
+                                                `}
                                                 >
                                                     {format(date, "d", {
                                                         locale: nb,
@@ -138,9 +156,14 @@ export default function Calendar() {
                                     </React.Fragment>
                                 ))}
                             </div>
+                            <DayModal
+                                date={selectedDate}
+                                onClose={() => setSelectedDate(null)}
+                            />
                         </div>
                     );
                 })}
+                ;
             </div>
         </div>
     );
