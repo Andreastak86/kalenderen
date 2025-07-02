@@ -1,5 +1,7 @@
 "use client";
 
+import * as React from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     // addYears,
     eachDayOfInterval,
@@ -12,9 +14,8 @@ import {
     startOfWeek,
 } from "date-fns";
 import { nb } from "date-fns/locale";
-import { useMemo, useState } from "react";
-import * as React from "react";
 import { getNorwegianHolidays } from "./helpers/getNorwegianHolidays";
+import { getEventDatesForYear } from "./helpers/events";
 import DayModal from "./DayModal";
 
 const months = [
@@ -38,11 +39,16 @@ export default function Calendar() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [eventDates, setEventDates] = useState<Set<string>>(new Set());
 
     const handlePrevYear = () => setYear((prev) => prev - 1);
     const handleNextYear = () => setYear((prev) => prev + 1);
     const handleResetYear = () => setYear(today.getFullYear());
     const holidays = useMemo(() => getNorwegianHolidays(year), [year]);
+
+    useEffect(() => {
+        getEventDatesForYear(year).then(setEventDates);
+    }, [year]);
 
     return (
         <div className='p-4 space-y-8'>
@@ -115,6 +121,8 @@ export default function Calendar() {
                                             const holidayName = holidays[iso];
                                             const isSunday =
                                                 date.getDay() === 0;
+                                            const hasEvent =
+                                                eventDates.has(iso);
 
                                             return (
                                                 <div
@@ -150,6 +158,9 @@ export default function Calendar() {
                                                     {format(date, "d", {
                                                         locale: nb,
                                                     })}
+                                                    {hasEvent && (
+                                                        <span className='absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-pink-700'></span>
+                                                    )}
                                                 </div>
                                             );
                                         })}
@@ -163,7 +174,6 @@ export default function Calendar() {
                         </div>
                     );
                 })}
-                ;
             </div>
         </div>
     );
